@@ -1,0 +1,25 @@
+{
+    "name": "gevgenov/test-gentree",
+    "description": "Тестовое задание на построение дерева",
+    "type": "project",
+    "require-dev": {
+        "vimeo/psalm": "^5.9"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gleb Evgenov",
+            "email": "glebevgenov@yandex.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Trees\\":"lib/Trees"
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "ext-ds": "*",
+        "league/csv": "^9.6.2"
+    }
+}
