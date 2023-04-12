@@ -10,6 +10,7 @@ use Support\Objects\IoPaths;
 class Gentree {
 
     private IoPaths $paths;
+    private TreeService $treeService;
 
     public function execute()
     {
@@ -34,22 +35,19 @@ class Gentree {
             throw new InvalidArgumentException('This command accepts two arguments!');
         }
         $this->paths = new IoPaths($_SERVER['argv'][1], $_SERVER['argv'][2]);
+        $this->treeService = new TreeService(new NodeFactory());
         return $this;
     }
     
     private function read(): Tree
     {
         $recordReader = new CsvRecordReader($this->paths->input);
-        $treeBuilder = new TreeBuilder(new NodeBuilder());
-        foreach ($recordReader as $record) {
-            $treeBuilder->addRecord($record);
-        }
-        return $treeBuilder->build();
+        return $this->treeService->createFromRecordIterable($recordReader);
     }
 
     private function write(Tree $tree): self
     {
-        $treeJson = $this->getTreeService()->toJson($tree, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        $treeJson = $this->treeService->toJson($tree, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         if (!file_put_contents(
             $this->paths->output,
             $treeJson,

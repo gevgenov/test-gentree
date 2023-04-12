@@ -10,8 +10,6 @@ class Node implements NodeInterface
         private string $itemName,
         private ?string $parent,
         private ?string $relation,
-        private ?NodeInterface $parentObject,
-        private ?NodeInterface $relationObject,
     ) {}
 
     public function getItemName(): string
@@ -37,25 +35,5 @@ class Node implements NodeInterface
     public function getRelation(): ?string
     {
         return $this->relation;
-    }
-
-    public function hasParentObject(): bool
-    {
-        return !is_null($this->parentObject);
-    }
-
-    public function getParentObject(): ?Node
-    {
-        return $this->parentObject;
-    }
-
-    public function hasRelationObject(): bool
-    {
-        return !is_null($this->relationObject);
-    }
-
-    public function getRelationObject(): ?Node
-    {
-        return $this->relationObject;
     }
 }
