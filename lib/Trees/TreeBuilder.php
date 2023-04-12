@@ -3,27 +3,49 @@
 namespace Trees;
 
 use Ds\Vector;
-use Trees\Interfaces\NodeFactoryInterface;
+use Trees\Interfaces\NodeBuilderInterface;
 
 class TreeBuilder
 {
     private Vector $nodeList;
-    private NodeFactoryInterface $nodeFactory;
 
-    public function __construct(NodeFactoryInterface $nodeFactory)
+    public function __construct(private NodeBuilderInterface $nodeBuilder)
     {
         $this->nodeList = new Vector();
-        $this->nodeFactory = $nodeFactory;
+    }
+
+    protected function createTree(): Tree
+    {
+        return new Tree();
+    }
+
+    public function setTree(Tree $itemName): Node
+    {
     }
 
     public function addRecord(array $record): void
     {
-        $node = ($this->nodeFactory)($record);
+        $node = $this->nodeBuilder
+             ->create()
+            ->setItemName($record[0])
+            ->setParent($record[2])
+            ->setRelation($record[3])
+            ->build();
         $this->nodeList->push($node);
     }
 
     public function build(): mixed
     {
         return $this->nodeList;
+    }
+
+    private function linkParents(): self
+    {
+        return $this;
+    }
+
+    private function linkRelations(): self
+    {
+        return $this;
     }
 }

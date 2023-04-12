@@ -1,6 +1,6 @@
 <?php declare (strict_types=1);
 
-namespace Trees;
+namespace Records;
 
 use IteratorAggregate;
 use LimitIterator;
@@ -24,12 +24,12 @@ class CsvRecordReader implements IteratorAggregate
 
     public function getIterator(): Generator
     {
-        foreach ($this->getRecordIterator() as $record) {
+        foreach ($this->getBaseIterator() as $record) {
             yield $this->normalizeRecord($record);
         }
     }
 
-    private function getRecordIterator(): LimitIterator
+    private function getBaseIterator(): LimitIterator
     {
         return new LimitIterator($this->csv->getRecords(), (int)$this->hasHeader);
     }

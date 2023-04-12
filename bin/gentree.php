@@ -3,30 +3,61 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 use Records\CsvRecordReader;
+use Trees\NodeBuilder;
 use Trees\TreeBuilder;
+use Support\Objects\IoPaths;
 
-try {
-    if ($argc !== 3) {
-        throw new InvalidArgumentException('This command accepts two arguments!');
-    }
-    $inputPath = $argv[1];
-    $outputPath = $argv[2];
+class Gentree {
 
-    $recordReader = new CsvRecordReader($inputPath);
-    $treeBuilder = new TreeBuilder();
-    foreach ($recordReader as $record) {
-        $treeBuilder->addRecord($record);
-    }
-    $rootNode = $treeBuilder->build();
+    private IoPaths $paths;
 
-    if (!file_put_contents(
-        $outputPath,
-        json_encode($rootNode, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
-    )) {
-        throw new RuntimeException(sprintf('Failed to write a file: "%s"!', $outputPath));
+    public function execute()
+    {
+        try {
+            $this->process();
+        } catch (Throwable $t) {
+            fwrite(STDERR, sprintf("%s:%s:%d: %s\n", $_SERVER['argv'][0], $t->getFile(), $t->getLine(), $t->getMessage()));
+            exit(1);
+        }
     }
 
-} catch (Throwable $t) {
-    fwrite(STDERR, sprintf("%s: %s\n", $argv[0], $t));
-    exit(1);
+    private function process(): void
+    {
+        $this->init();
+        $tree = $this->read();
+        $this->write($tree);
+    }
+
+    private function init(): self
+    {
+        if ($_SERVER['argc'] !== 3) {
+            throw new InvalidArgumentException('This command accepts two arguments!');
+        }
+        $this->paths = new IoPaths($_SERVER['argv'][1], $_SERVER['argv'][2]);
+        return $this;
+    }
+    
+    private function read(): Tree
+    {
+        $recordReader = new CsvRecordReader($this->paths->input);
+        $treeBuilder = new TreeBuilder(new NodeBuilder());
+        foreach ($recordReader as $record) {
+            $treeBuilder->addRecord($record);
+        }
+        return $treeBuilder->build();
+    }
+
+    private function write(Tree $tree): self
+    {
+        $treeJson = $this->getTreeService()->toJson($tree, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        if (!file_put_contents(
+            $this->paths->output,
+            $treeJson,
+        )) {
+            throw new RuntimeException(sprintf('Failed to write a file: "%s"!', $this->paths->output));
+        }
+        return $this;
+    }
 }
+
+(new Gentree())->execute();
