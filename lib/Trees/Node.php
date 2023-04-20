@@ -10,7 +10,14 @@ class Node implements NodeInterface
         private string $itemName,
         private ?string $parent,
         private ?string $relation,
-    ) {}
+    ) {
+        $this->uid = uniqid();
+    }
+
+    public function getUid(): string
+    {
+        return $this->uid;
+    }
 
     public function getItemName(): string
     {

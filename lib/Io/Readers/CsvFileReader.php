@@ -1,13 +1,13 @@
 <?php declare (strict_types=1);
 
-namespace Records;
+namespace Io\Readers;
 
 use IteratorAggregate;
 use LimitIterator;
 use Generator;
 use League\Csv\Reader;
 
-class CsvRecordReader implements IteratorAggregate
+class CsvFileReader implements IteratorAggregate
 {
     private Reader $csv;
     private bool $hasHeader;

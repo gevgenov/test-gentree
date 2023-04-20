@@ -6,6 +6,8 @@ use Trees\Node;
 
 interface NodeInterface
 {
+    public function getUid(): mixed;
+
     public function getItemName(): string;
 
     public function hasParent(): bool;

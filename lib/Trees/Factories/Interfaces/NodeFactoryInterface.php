@@ -1,8 +1,8 @@
 <?php declare (strict_types=1);
 
-namespace Trees\Interfaces;
+namespace Trees\Factories\Interfaces;
 
-use Trees\Node;
+use Trees\Interfaces\NodeInterface;
 
 interface NodeFactoryInterface
 {

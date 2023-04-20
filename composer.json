@@ -15,8 +15,7 @@
     "autoload": {
         "psr-4": {
             "Trees\\":"lib/Trees",
-            "Records\\":"lib/Records",
-            "Support\\":"lib/Support"
+            "Io\\":"lib/Io"
         }
     },
     "require": {
