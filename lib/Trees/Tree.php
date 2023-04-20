@@ -31,17 +31,17 @@ class Tree
         return $this;
     }
 
-    public function hasChildren(?NodeInterface $node): bool
+    public function hasChildren(?NodeInterface $node = null): bool
     {
         return $this->getRelations($node)->hasChildren();
     }
 
-    public function getChildren(?NodeInterface $node): Vector
+    public function getChildren(?NodeInterface $node = null): Vector
     {
         return $this->getRelations($node)->getChildren()->copy();
     }
 
-    public function getChildrenCount(?NodeInterface $node): int
+    public function getChildrenCount(?NodeInterface $node = null): int
     {
         return count($this->getRelations($node)->getChildren());
     }
