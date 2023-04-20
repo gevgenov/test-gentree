@@ -8,60 +8,87 @@ use Ds\Vector;
 
 class Tree
 {
-    private Map $parentMap;
-    private Map $childrenMap;
+    private Map $relations;
 
     public function __construct()
     {
-        $this->parentMap = new Map();
-        $this->childrenMap = new Map();
+        $this->relations = new Map();
     }
 
     public function hasParent(NodeInterface $node): bool
     {
-        return $this->parentMap->hasKey($node->getUid()); 
+        return $this->getRelations($node)->hasParent();
     }
 
     public function getParent(NodeInterface $node): ?NodeInterface
     {
-        return $this->parentMap->get($node->getUid(), null); 
+        return $this->getRelations($node)->getParent(); 
     }
 
-    public function setParent(NodeInterface $node, ?NodeInterface $parentNode = null): self
+    public function setParent(NodeInterface $node, ?NodeInterface $parentNode): self
     {
-        $oldParentNode = $this->parentMap->get($node->getUid(), null);
-        if (!is_null($oldParentNode)) {
-            $oldParentNodeChildren = $childrenMap->get($oldParentNode->getUid());
-            if ($oldParentNodeChildren->hasKey($node->getUid())) {
-                $oldParentNodeChildren->remove($node->getUid());
-            }
+        $this->detachParent($node)->attachParent($node, $parentNode);
+        return $this;
+    }
+
+    public function hasChildren(?NodeInterface $node): bool
+    {
+        return $this->getRelations($node)->hasChildren();
+    }
+
+    public function getChildren(?NodeInterface $node): Vector
+    {
+        return $this->getRelations($node)->getChildren()->copy();
+    }
+
+    public function getChildrenCount(?NodeInterface $node): int
+    {
+        return count($this->getRelations($node)->getChildren());
+    }
+
+    public function forget(NodeInterface $node): self
+    {
+        $this->detachParent($node)
+            ->detachChildren($node)
+            ->removeRelations($node);
+        return $this;
+    }
+
+    private function detachParent(NodeInterface $node): self
+    {
+        $this->getRelations($this->getRelations($node)->getParent())->removeChild($node);
+        $this->getRelations($node)->setParent(null);
+        return $this;
+    }
+
+    private function detachChildren(NodeInterface $node): self
+    {
+        foreach ($this->getRelations($node)->getChildren() as $childNode) {
+            $this->getRelations($childNode)->setParent(null);
         }
-        $this->parentMap->put($node->getUid(), $parentNode); 
-        $parentNodeChildren = $this->childrenMap->get($parentNode?->getUid(), null);
-        if (is_null($parentNodeChildren)) {
-            $parentNodeChildren = new Map();
-            $this->childrenMap->put($parentNode?->getUid(), $parentNodeChildren);
+        $this->getRelations($node)->clearChildren();
+        return $this;
+    }
+
+    private function attachParent(NodeInterface $node, ?NodeInterface $parentNode): self
+    {
+        $this->getRelations($node)->setParent($parentNode);
+        $this->getRelations($parentNode)->addChild($node);
+        return $this;
+    }
+
+    private function getRelations(?NodeInterface $node): TreeRelations
+    {
+        if (!$this->relations->hasKey($node?->getUid())) {
+            $this->relations->put($node?->getUid(), new TreeRelations()); 
         }
-        $parentNodeChildren->put($node->getUid(), $node);
-        return $this; 
+        return $this->relations->get($node?->getUid());
     }
 
-    public function hasChildren(?NodeInterface $node = null): bool
+    private function removeRelations(?NodeInterface $node)
     {
-        return count($this->childrenMap->get($node, [])) > 0;
-    }
-
-    public function getChildren(?NodeInterface $node = null): iterable
-    {
-        return $this->childrenMap->get($node, []);    
-    }
-
-    public function getChildrenCount(?NodeInterface $node = null): int
-    {
-        return count($this->childrenMap->get($node, []));    
-    }
-
-    public function forgetNode(NodeInterface $node): self
-    {
+        if ($this->relations->hasKey($node?->getUid())) {
+            $this->relations->remove($node?->getUid()); 
+        }
     }
 }

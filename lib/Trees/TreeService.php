@@ -9,7 +9,7 @@ class TreeService
 {
     public function format(Tree $tree): array
     {
-        return $this->formatNodeList($tree, $tree->getChildren());
+        return $this->formatNodeList($tree, $tree->getChildren(null));
     }
 
     public function formatNodeList(Tree $tree, iterable $nodes): array
