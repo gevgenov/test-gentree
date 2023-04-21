@@ -9,24 +9,24 @@ class TreeService
 {
     public function format(Tree $tree): array
     {
-        return $this->formatNodeList($tree, $tree->getChildren());
+        return $this->formatNodeList($tree, null, $tree->getChildrenList());
     }
 
-    public function formatNodeList(Tree $tree, iterable $nodes): array
+    public function formatNodeList(Tree $tree, ?NodeInterface $parentNode, iterable $nodeList): array
     {
-        $list = [];
-        foreach ($nodes as $node) {
-            $list[] = $this->formatNode($tree, $node);
+        $nodeListArray = [];
+        foreach ($nodeList as $node) {
+            $nodeListArray[] = $this->formatNode($tree, $parentNode, $node);
         }
-        return $list;
+        return $nodeListArray;
     }
 
-    public function formatNode(Tree $tree, NodeInterface $node): array
+    public function formatNode(Tree $tree, ?NodeInterface $parentNode, NodeInterface $node): array
     {
         $nodeArray = [
             'itemName' => $node->getItemName(),
-            'parent' => $tree->getParent($node)?->getItemName(),
-            'children' => $this->formatNodeList($tree, $tree->getChildren($node)),
+            'parent' => $parentNode?->getItemName(),
+            'children' => $this->formatNodeList($tree, $node, $tree->getChildrenList($node)),
         ];
         return $nodeArray;
     }

@@ -10,9 +10,9 @@ class NodeService
 {
     public function __construct(private NodeFactoryInterface $nodeFactory) {}
 
-    public function createGeneratorFromRecords(iterable $records): Generator
+    public function createGeneratorFromRecordList(iterable $recordList): Generator
     {
-        foreach ($records as $record) {
+        foreach ($recordList as $record) {
             yield $this->createFromRecord($record);
         }
     }

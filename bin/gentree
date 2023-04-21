@@ -18,7 +18,7 @@ class Command {
     private NodeService $nodeService;
     private TreeService $treeService;
     private TreeFactory $treeFactory;
-    private bool $hasVerbose = true;
+    private bool $hasVerboseOption = false;
 
     public function execute(): void
     {
@@ -29,7 +29,7 @@ class Command {
             $this->handle();
             $status = 0;
         } catch (Throwable $t) {
-            if ($this->hasVerbose) {
+            if ($this->hasVerboseOption) {
                 fwrite(STDERR, sprintf("%s:%s:%d: %s", $_SERVER['argv'][0], $t->getFile(), $t->getLine(), $t->getMessage()). PHP_EOL);
                 fwrite(STDERR, $t->getTraceAsString(). PHP_EOL);
             } else {
@@ -54,7 +54,7 @@ class Command {
         if ($_SERVER['argc'] !== 3) {
             throw new InvalidArgumentException('Invalid number of arguments!');
         }
-        $this->hasVerbose = (bool)getenv('VERBOSE');
+        $this->hasVerboseOption = (bool)getenv('VERBOSE');
         $this->paths = new Paths($_SERVER['argv'][1], $_SERVER['argv'][2]);
         return $this;
     }
@@ -62,8 +62,8 @@ class Command {
     private function read(): Tree
     {
         $csvReader = new CsvFileReader($this->paths->input);
-        $nodeGenerator = $this->nodeService->createGeneratorFromRecords($csvReader);
-        return $this->treeFactory->createFromNodes($nodeGenerator);
+        $nodeGenerator = $this->nodeService->createGeneratorFromRecordList($csvReader);
+        return $this->treeFactory->createFromNodeList($nodeGenerator);
     }
 
     private function write(Tree $tree): self

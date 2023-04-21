@@ -8,11 +8,12 @@ use Ds\Vector;
 class TreeRelations
 {
     private ?NodeInterface $parent = null;
-    private Vector $children;
+    private ?NodeInterface $link = null;
+    private Vector $childrenList;
 
     public function __construct()
     {
-        $this->children = new Vector();
+        $this->childrenList = new Vector();
     }
 
     public function hasParent(): bool
@@ -31,37 +32,53 @@ class TreeRelations
         return $this;
     }
 
-    public function hasChildren(): bool
+    public function hasLink(): bool
     {
-        return !$this->children->isEmpty();
+        return !is_null($this->link);
     }
 
-    public function getChildren(): Vector
+    public function getLink(): ?NodeInterface
     {
-        return $this->children;
+        return $this->link;
+    }
+
+    public function setLink(?NodeInterface $node): self
+    {
+        $this->link = $node;
+        return $this;
+    }
+
+    public function hasChildren(): bool
+    {
+        return !$this->childrenList->isEmpty();
+    }
+
+    public function getChildrenList(): Vector
+    {
+        return $this->childrenList;
     }
 
     public function addChild(NodeInterface $node): self
     {
-        $this->children->push($node);
+        $this->childrenList->push($node);
         return $this;
     }
 
     public function removeChild(NodeInterface $node): self
     {
         $index = $this
-            ->children
+            ->childrenList
             ->map(fn(NodeInterface $childNode) => $childNode->getUid())
             ->find($node->getUid());
         if ($index !== false) {
-            $this->children->remove($index);
+            $this->childrenList->remove($index);
         }
         return $this;
     }
 
     public function clearChildren(): self
     {
-        $this->children->clear();
+        $this->childrenList->clear();
         return $this;
     }
 }

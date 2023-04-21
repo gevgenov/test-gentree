@@ -8,11 +8,11 @@ use Ds\Vector;
 
 class Tree
 {
-    private Map $relations;
+    private Map $relationMap;
 
     public function __construct()
     {
-        $this->relations = new Map();
+        $this->relationMap = new Map();
     }
 
     public function hasParent(NodeInterface $node): bool
@@ -31,19 +31,25 @@ class Tree
         return $this;
     }
 
-    public function hasChildren(?NodeInterface $node = null): bool
+    public function setLink(NodeInterface $node, ?NodeInterface $targetNode): self
     {
-        return $this->getRelations($node)->hasChildren();
+        $this->getRelations($node)->setLink($targetNode);
+        return $this;
     }
 
-    public function getChildren(?NodeInterface $node = null): Vector
+    public function hasChildren(?NodeInterface $node = null): bool
     {
-        return $this->getRelations($node)->getChildren()->copy();
+        return $this->getChildrenRelations($node)->hasChildren();
+    }
+
+    public function getChildrenList(?NodeInterface $node = null): Vector
+    {
+        return $this->getChildrenRelations($node)->getChildrenList()->copy();
     }
 
     public function getChildrenCount(?NodeInterface $node = null): int
     {
-        return count($this->getRelations($node)->getChildren());
+        return count($this->getChildrenRelations($node)->getChildren());
     }
 
     public function forget(NodeInterface $node): self
@@ -63,6 +69,9 @@ class Tree
 
     private function detachChildren(NodeInterface $node): self
     {
+        if ($this->getRelations($node)->hasLink()) {
+            return $this;
+        }
         foreach ($this->getRelations($node)->getChildren() as $childNode) {
             $this->getRelations($childNode)->setParent(null);
         }
@@ -77,18 +86,24 @@ class Tree
         return $this;
     }
 
+    private function getChildrenRelations(?NodeInterface $node): TreeRelations
+    {
+        $relations = $this->getRelations($node);
+        return $relations->hasLink() ? $this->getRelations($relations->getLink()) : $relations;
+    }
+    
     private function getRelations(?NodeInterface $node): TreeRelations
     {
-        if (!$this->relations->hasKey($node?->getUid())) {
-            $this->relations->put($node?->getUid(), new TreeRelations()); 
+        if (!$this->relationMap->hasKey($node?->getUid())) {
+            $this->relationMap->put($node?->getUid(), new TreeRelations()); 
         }
-        return $this->relations->get($node?->getUid());
+        return $this->relationMap->get($node?->getUid());
     }
 
     private function removeRelations(?NodeInterface $node)
     {
-        if ($this->relations->hasKey($node?->getUid())) {
-            $this->relations->remove($node?->getUid()); 
+        if ($this->relationMap->hasKey($node?->getUid())) {
+            $this->relationMap->remove($node?->getUid()); 
         }
     }
 }

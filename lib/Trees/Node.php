@@ -14,6 +14,11 @@ class Node implements NodeInterface
         $this->uid = uniqid();
     }
 
+    public function __clone()
+    {
+        $this->uid = uniqid();
+    }
+
     public function getUid(): string
     {
         return $this->uid;
