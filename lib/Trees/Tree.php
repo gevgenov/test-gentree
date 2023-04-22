@@ -49,7 +49,7 @@ class Tree
 
     public function getChildrenCount(?NodeInterface $node = null): int
     {
-        return count($this->getChildrenRelations($node)->getChildren());
+        return count($this->getChildrenRelations($node)->getChildrenList());
     }
 
     public function forget(NodeInterface $node): self
@@ -69,10 +69,7 @@ class Tree
 
     private function detachChildren(NodeInterface $node): self
     {
-        if ($this->getRelations($node)->hasLink()) {
-            return $this;
-        }
-        foreach ($this->getRelations($node)->getChildren() as $childNode) {
+        foreach ($this->getRelations($node)->getChildrenList() as $childNode) {
             $this->getRelations($childNode)->setParent(null);
         }
         $this->getRelations($node)->clearChildren();
@@ -100,10 +97,11 @@ class Tree
         return $this->relationMap->get($node?->getUid());
     }
 
-    private function removeRelations(?NodeInterface $node)
+    private function removeRelations(?NodeInterface $node): self
     {
         if ($this->relationMap->hasKey($node?->getUid())) {
             $this->relationMap->remove($node?->getUid()); 
         }
+        return $this;
     }
 }

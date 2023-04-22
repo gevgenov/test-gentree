@@ -3,5 +3,8 @@
 namespace Io\Objects;
 
 class Paths {
-    public function __construct(readonly public string $input, readonly public string $output) {}
+    public function __construct(
+        public string $input, 
+        public string $output,
+    ) {}
 }

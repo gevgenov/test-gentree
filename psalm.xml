@@ -9,6 +9,8 @@
     memoizeMethodCallResults="true"
 >
     <projectFiles>
+
+        <file name="./bin/*" />
         <directory name="." />
         <ignoreFiles>
             <directory name="vendor" />

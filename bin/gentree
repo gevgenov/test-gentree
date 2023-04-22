@@ -12,28 +12,32 @@ use Trees\TreeService;
 use Trees\Factories\TreeFactory;
 use Trees\Tree;
 
+/**
+ * @psalm-suppress MissingConstructor
+ */
 class Command {
 
-    private Paths $paths;
+    /** @var NodeService */
     private NodeService $nodeService;
     private TreeService $treeService;
     private TreeFactory $treeFactory;
     private bool $hasVerboseOption = false;
+    private Paths $paths;
 
     public function execute(): void
     {
+        $status = 0;
         try {
             $this->nodeService = new NodeService(new NodeFactory());
             $this->treeService = new TreeService();
             $this->treeFactory = new TreeFactory();
             $this->handle();
-            $status = 0;
         } catch (Throwable $t) {
             if ($this->hasVerboseOption) {
-                fwrite(STDERR, sprintf("%s:%s:%d: %s", $_SERVER['argv'][0], $t->getFile(), $t->getLine(), $t->getMessage()). PHP_EOL);
+                fwrite(STDERR, sprintf("%s:%s:%d: %s", $this->getProgramPath(), $t->getFile(), $t->getLine(), $t->getMessage()). PHP_EOL);
                 fwrite(STDERR, $t->getTraceAsString(). PHP_EOL);
             } else {
-                fwrite(STDERR, sprintf("%s: %s", $_SERVER['argv'][0], $t->getMessage()). PHP_EOL);
+                fwrite(STDERR, sprintf("%s: %s", $this->getProgramPath(), $t->getMessage()). PHP_EOL);
             }
             $this->usage();
             $status = 1;
@@ -51,11 +55,8 @@ class Command {
 
     private function init(): self
     {
-        if ($_SERVER['argc'] !== 3) {
-            throw new InvalidArgumentException('Invalid number of arguments!');
-        }
+        $this->paths = new Paths($this->getInputPath(), $this->getOutputPath());
         $this->hasVerboseOption = (bool)getenv('VERBOSE');
-        $this->paths = new Paths($_SERVER['argv'][1], $_SERVER['argv'][2]);
         return $this;
     }
 
@@ -76,6 +77,41 @@ class Command {
     private function usage(): void
     {
         echo 'usage: <input-path> <output-path>' . PHP_EOL;
+    }
+
+    private function getInputPath(): string
+    {
+        $path = $this->getArgument(1);
+        if (!is_file($path)) {
+            throw new RuntimeException('Invalid input path!'); 
+        }
+        return $path;
+    }
+
+    private function getOutputPath(): string
+    {
+        $path = $this->getArgument(2);
+        if (!is_dir(dirname($path))) {
+            throw new RuntimeException('Invalid output path!'); 
+        }
+        return $path;
+    }
+
+    private function getProgramPath(): string
+    {
+        return $this->getArgument(0);
+    }
+
+    private function getArgument(int $index): string
+    {
+        if (!isset($_SERVER['argv'])) {
+            throw new RuntimeException('Not in command line mode!'); 
+        }
+        $argument = $_SERVER['argv'][$index] ?? null;
+        if ($argument === null) {
+            throw new RuntimeException('Not enough arguments!'); 
+        }
+        return $argument;
     }
 }
 

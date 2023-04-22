@@ -7,6 +7,9 @@ use LimitIterator;
 use Generator;
 use League\Csv\Reader;
 
+/**
+ * @implements IteratorAggregate<int, array>
+ */
 class CsvFileReader implements IteratorAggregate
 {
     private Reader $csv;

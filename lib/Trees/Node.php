@@ -6,6 +6,8 @@ use Trees\Interfaces\NodeInterface;
 
 class Node implements NodeInterface
 {
+    private string $uid;
+
     public function __construct(
         private string $itemName,
         private ?string $parent,

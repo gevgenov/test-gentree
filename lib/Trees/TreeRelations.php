@@ -68,7 +68,7 @@ class TreeRelations
     {
         $index = $this
             ->childrenList
-            ->map(fn(NodeInterface $childNode) => $childNode->getUid())
+            ->map(fn(NodeInterface $childNode): mixed => $childNode->getUid())
             ->find($node->getUid());
         if ($index !== false) {
             $this->childrenList->remove($index);
