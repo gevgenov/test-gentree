@@ -9,14 +9,14 @@ use Trees\Interfaces\NodeInterface;
 /**
  * @implements IteratorAggregate<mixed, NodeInterface>
  */
-class NodeByUidIterator implements IteratorAggregate
+class NodeByItemNameIterator implements IteratorAggregate
 {
     public function __construct(private iterable $nodeList) {}
 
     public function getIterator(): Generator
     {
         foreach ($this->nodeList as $node) {
-            yield $node->getUid() => $node;
+            yield $node->getItemName() => $node;
         }
     }
 }
