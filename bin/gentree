@@ -8,7 +8,7 @@ use Trees\Factories\NodeFactory;
 use Trees\NodeService;
 use Trees\TreeService;
 use Trees\Factories\TreeFactory;
-use App\Commands\GentreeCommand;
+use App\Console\Commands\GentreeCommand;
 
 $application = new Application('gentree', '1.0.0');
 

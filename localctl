@@ -7,18 +7,20 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
   cat << EOF # remove the space between << and EOF, this is due to web plugin issue
-Usage: $(basename "${BASH_SOURCE[0]}") command
+Description: 
+    Control local PHP application
+
+Usage: 
+    $(basename "${BASH_SOURCE[0]}") <command>
 
 Available commands:
-
-install         install application
-uninstall       remove all application data from the system
-sh              start the shell
+    install           install application
+    uninstall         remove all application data from the system
+    sh                start the shell
 
 Available options:
-
--h, --help      Print this help and exit
--v, --verbose   Print script debug info
+    -h, --help        Print this help and exit
+    -v, --verbose     Print script debug info
 EOF
   exit
 }
