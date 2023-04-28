@@ -39,17 +39,17 @@ class Tree
 
     public function hasChildren(?NodeInterface $node = null): bool
     {
-        return $this->getChildrenRelations($node)->hasChildren();
+        return $this->getRelations($node)->hasChildren();
     }
 
     public function getChildrenList(?NodeInterface $node = null): Vector
     {
-        return $this->getChildrenRelations($node)->getChildrenList()->copy();
+        return $this->getRelations($node)->getChildrenList()->copy();
     }
 
     public function getChildrenCount(?NodeInterface $node = null): int
     {
-        return count($this->getChildrenRelations($node)->getChildrenList());
+        return count($this->getRelations($node)->getChildrenList());
     }
 
     public function forget(NodeInterface $node): self
@@ -62,39 +62,41 @@ class Tree
 
     private function detachParent(NodeInterface $node): self
     {
-        $this->getRelations($this->getRelations($node)->getParent())->removeChild($node);
-        $this->getRelations($node)->setParent(null);
+        $this->getOwnRelations($this->getOwnRelations($node)->getParent())->removeChild($node);
+        $this->getOwnRelations($node)->setParent(null);
         return $this;
     }
 
     private function detachChildren(NodeInterface $node): self
     {
-        foreach ($this->getRelations($node)->getChildrenList() as $childNode) {
-            $this->getRelations($childNode)->setParent(null);
+        foreach ($this->getOwnRelations($node)->getChildrenList() as $childNode) {
+            $this->getOwnRelations($childNode)->setParent(null);
         }
-        $this->getRelations($node)->clearChildren();
+        $this->getOwnRelations($node)->clearChildren();
         return $this;
     }
 
     private function attachParent(NodeInterface $node, ?NodeInterface $parentNode): self
     {
-        $this->getRelations($node)->setParent($parentNode);
-        $this->getRelations($parentNode)->addChild($node);
+        $this->getOwnRelations($node)->setParent($parentNode);
+        $this->getOwnRelations($parentNode)->addChild($node);
         return $this;
     }
 
-    private function getChildrenRelations(?NodeInterface $node): TreeRelations
-    {
-        $relations = $this->getRelations($node);
-        return $relations->hasLink() ? $this->getRelations($relations->getLink()) : $relations;
-    }
-    
     private function getRelations(?NodeInterface $node): TreeRelations
     {
-        if (!$this->relationMap->hasKey($node?->getUid())) {
-            $this->relationMap->put($node?->getUid(), new TreeRelations()); 
+        $ownRelations = $this->getOwnRelations($node);
+        return $ownRelations->hasLink() ? $this->getRelations($ownRelations->getLink()) : $ownRelations;
+    }
+
+    private function getOwnRelations(?NodeInterface $node): TreeRelations
+    {
+        $relations = $this->relationMap->get($node?->getUid(), null);
+        if ($relations === null) {
+            $relations = new TreeRelations();
+            $this->relationMap->put($node?->getUid(), $relations); 
         }
-        return $this->relationMap->get($node?->getUid());
+        return $relations;
     }
 
     private function removeRelations(?NodeInterface $node): self

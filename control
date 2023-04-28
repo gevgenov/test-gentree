@@ -11,9 +11,9 @@ Usage: $(basename "${BASH_SOURCE[0]}") command
 
 Available commands:
 
-install         build a Docker image
-uninstall       remove all Docker data
-sh              start a Docker container and shell into it
+install         install application
+uninstall       remove all application data from the system
+sh              start the shell
 
 Available options:
 
@@ -39,7 +39,7 @@ msg() {
   echo >&2 -e "${1-}"
 }
 
-die() {
+halt() {
   local msg=$1
   local code=${2-1} # default exit status 1
   msg "$msg"
@@ -52,7 +52,7 @@ parse_params() {
     -h | --help) usage ;;
     -v | --verbose) set -x ;;
     --no-color) NO_COLOR=1 ;;
-    -?*) die "Unknown option: $1" ;;
+    -?*) halt "Unknown option: $1" ;;
     *) break ;;
     esac
     shift
@@ -61,7 +61,7 @@ parse_params() {
   args=("$@")
 
   # check required arguments
-  [[ ${#args[@]} -eq 0 ]] && die "Missing script arguments"
+  [[ ${#args[@]} -eq 0 ]] && halt "Missing script arguments"
 
   return 0
 }
@@ -80,8 +80,8 @@ msg "${GREEN}Uninstalling...${NOFORMAT}"
 
 elif [ ${args[0]} = "sh" ];
 then
-msg "${GREEN}Starting shell...${NOFORMAT}"
+msg "${GREEN}Starting the shell...${NOFORMAT}"
 
 else
-msg "Sorry, unknown command: ${args[0]}."
+halt "Sorry, unknown command: ${args[0]}."
 fi
