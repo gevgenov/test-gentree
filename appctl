@@ -8,7 +8,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 usage() {
   cat << EOF # remove the space between << and EOF, this is due to web plugin issue
 Description: 
-    Control local PHP application
+    Control local environment
 
 Usage: 
     $(basename "${BASH_SOURCE[0]}") <command>
@@ -16,7 +16,7 @@ Usage:
 Available commands:
     install           install application
     uninstall         remove all application data from the system
-    sh                start the shell
+    sh                run the shell
 
 Available options:
     -h, --help        Print this help and exit
@@ -75,14 +75,20 @@ setup_colors
 if [ ${args[0]} = "install" ];
 then
 msg "${GREEN}Installing...${NOFORMAT}"
+docker build --build-arg user=app --build-arg uid=1000 --build-arg gid=1000 -t gevgenov/test-gentree .
+docker run -itd --name gentree-app -v .:/app gevgenov/test-gentree
 
 elif [ ${args[0]} = "uninstall" ];
 then
 msg "${GREEN}Uninstalling...${NOFORMAT}"
+docker stop gentree-app
+docker rm gentree-app
+docker rmi gevgenov/test-gentree
 
 elif [ ${args[0]} = "sh" ];
 then
-msg "${GREEN}Starting the shell...${NOFORMAT}"
+msg "${GREEN}Running the shell...${NOFORMAT}"
+docker exec -it gentree-app /bin/sh
 
 else
 halt "Sorry, unknown command: ${args[0]}."
